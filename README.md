@@ -1,2 +1,3 @@
-# analysis_css-scale
-Analysis and visualization for Coastal Sage Scrub (CSS) Scale-Dependent Heterogeneity
+# Coastal Sage Scrub Scale-Dependent Heterogeneity
+
+Analysis and visualization code for the Coastal Sage Scrub (CSS) project headed by Frank Davis.
