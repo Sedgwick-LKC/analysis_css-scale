@@ -1,8 +1,9 @@
 ## --------------------------------------------- ##
-# Setup Steps
+# Data Processing - Trex 2022
 ## --------------------------------------------- ##
 # Purpose:
-## Perform setup tasks likely to be useful for many downstream scripts
+## Wrangle and perform QC on Trex 2022 data (2023-2025)
+## Note that "Trex 2022" is a site not a single study year
 
 # Load libraries
 # install.packages("librarian")
