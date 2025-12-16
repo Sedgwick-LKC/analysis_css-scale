@@ -105,24 +105,83 @@ trx22_v03 <- trx22_v02 %>%
 dplyr::glimpse(trx22_v03)
 
 ## ----------------------------- ##
+# Prepare Plant Metadata ----
+## ----------------------------- ##
+
+# Read in plant species information
+spp_v01 <- read.csv(file = file.path("data", "codes", "plant_species_codes_20250628.csv"))
+
+# Check structure
+dplyr::glimpse(spp_v01)
+
+# Grab the life form codes too
+form_v01 <- readxl::read_excel(path = file.path("data", "codes", "plant_life_form_codes.xlsx"))
+
+# Check that structure
+dplyr::glimpse(form_v01)
+
+# Combine these two and do general wrangling stuff
+spp_v02 <- dplyr::left_join(x = spp_v01, y = form_v01,
+    by = c("lifeform" = "Code")) %>% 
+  # Ditch unwanted columns
+  dplyr::select(-count, -lifeform) %>% 
+  dplyr::rename(lifeform = `Plant life form`) %>% 
+  # Separate scientific name from common name
+  tidyr::separate_wider_delim(cols = Species, delim = " - ",
+    names = c("species.scientific", "species.common"), too_few = "align_start")
+
+# Check structure
+dplyr::glimpse(spp_v02)
+
+# Curious about included scientific/common names?
+sort(unique(spp_v02$species.scientific))
+sort(unique(spp_v02$species.common))
+
+## ----------------------------- ##
 # Species Quality Control ----
 ## ----------------------------- ##
 
 # What species are in the data now?
 sort(unique(trx22_v03$species.code))
 
+# Any not found in the 'codes' file?
+sort(setdiff(x = unique(trx22_v03$species.code), y = unique(spp_v02$key_value)))
+
 # Do any needed tidying here
 trx22_v04 <- trx22_v03 %>% 
   dplyr::mutate(species.code = dplyr::case_when(
-    # No such wrangling currently needed
+    species.code == "BROMMADR" ~ "BROMMAMA", # codes splits two subsp of 'Bromus madritensis'
+    species.code == "GALIAPER" ~ "GALIAPAR", # pretty confident this is a typo for 'Galium aparine'
     T ~ species.code))
 
 # Re-check species names
-sort(unique(trx22_v04$species.code))
+sort(setdiff(x = unique(trx22_v04$species.code), y = unique(spp_v02$key_value)))
 
 ## ----------------------------- ##
-
+# Integrate Plant Metadata ----
 ## ----------------------------- ##
 
+# Join on the plant lifeform information
+trx22_v05 <- trx22_v04 %>% 
+  dplyr::left_join(y = spp_v02, by = c("species.code" = "key_value")) %>% 
+  # Reorder columns slightly
+  dplyr::relocate(species.scientific:lifeform, .after = species.code)
+
+# Check structure
+dplyr::glimpse(trx22_v05)
+
+## ----------------------------- ##
+# Export ----
+## ----------------------------- ##
+
+# Make a final object
+trx22_v99 <- trx22_v05
+
+# Check the structure
+dplyr::glimpse(trx22_v99)
+
+# Export locally
+write.csv(x = trx22_v99, na = '', row.names = F,
+  file = file.path("data", "level-1", "trex2022_veg-surveys.csv"))
 
 # End ----
