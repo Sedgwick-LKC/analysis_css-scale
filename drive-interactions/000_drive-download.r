@@ -32,4 +32,24 @@ purrr::walk2(.x = drive_lvl0$id, .y = drive_lvl0$name,
   .f = ~ googledrive::drive_download(file = .x, overwrite = T,
     path = file.path("data", "level-0", tolower(.y))))
 
+# Clear environment
+rm(list = ls()); gc()
+
+## -------------------------------- ##
+# Download Plant Species Codes ----
+## -------------------------------- ##
+
+# Identify the relevant folder
+link_flora <- googledrive::as_id("https://drive.google.com/drive/folders/1vCC7NfCwTCemx08rqiYUSGyFuBksgDYT")
+
+# Check what's in that
+(drive_flora <- googledrive::drive_ls(path = link_flora) %>% 
+  ## And pare down to only the desired files
+  dplyr::filter(name %in% c("plant_species_codes_20250628.csv", "plant_life_form_codes.xlsx")))
+
+# Download all the contents of that
+purrr::walk2(.x = drive_flora$id, .y = drive_flora$name,
+  .f = ~ googledrive::drive_download(file = .x, overwrite = T,
+    path = file.path("data", "codes", tolower(.y))))
+
 # End ----
