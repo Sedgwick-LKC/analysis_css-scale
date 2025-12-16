@@ -24,7 +24,7 @@ purrr::walk(.x = dir(path = file.path("tools"), pattern = "fxn_"),
 ## ----------------------------- ##
 
 # Identify data from the relevant site
-(trx23_files <- dir(path = file.path("data", "level-0"), pattern = "trex22"))
+(trx23_files <- dir(path = file.path("data", "level-0"), pattern = "trex23"))
 
 # Read in each of these files
 trx23_v01 <- purrr::map(.x = trx23_files,
@@ -34,7 +34,10 @@ trx23_v01 <- purrr::map(.x = trx23_files,
   ## Remove any columns that are completely empty
   dplyr::select(-dplyr::where(fn = ~ all(is.na(.) | nchar(.) == 0))) %>% 
   ## Remove a weird, unnamed, notes-ish column from transect 3
-  dplyr::select(-`...29`)
+  dplyr::select(-`...29`) %>% 
+  ## Coalesce duplicate date columns
+  dplyr::mutate(survey_date = dplyr::coalesce(survey_date, date)) %>% 
+  dplyr::select(-date)
 
 # Check structure
 dplyr::glimpse(trx23_v01)
@@ -49,13 +52,6 @@ trx23_v02 <- trx23_v01 %>%
   tidyr::pivot_longer(cols = -site:-block) %>% 
   # Ditch any rows without cover info
   dplyr::filter(!is.na(value) & nchar(value) != 0) %>% 
-  # Standardize old names
-  dplyr::mutate(name = dplyr::case_when(
-    name == "c0v7" ~ "cov7",
-    name == "ssp8" ~ "sp8",
-    T ~ name)) %>% 
-  dplyr::mutate(name = ifelse(nchar(name) == 4,
-    yes = paste0("sp", gsub("cov", "", name), "cov"), no = name)) %>% 
   # Sort by all columns except value
   dplyr::arrange(dplyr::across(dplyr::all_of(setdiff(x = names(.), y = c("value"))))) %>% 
   # And remove the distinction between species name and cover (trust me)
@@ -67,8 +63,7 @@ trx23_v02 <- trx23_v01 %>%
   dplyr::ungroup() %>% 
   # Do some custom fixes for some probable typos in the data
   dplyr::mutate(sp.cov = dplyr::case_when(
-    sp.cov == "SALVLEUC___STIPLEPI___1-10%" ~ "STIPLEPI___1-10%",
-    sp.cov %in% c("LUPINANU", "BROMDIAN", "BROMMADR") ~ NA,
+    sp.cov %in% c("ACMISTRI", "ACMIGLAB", "BROMDIAN", "ERODCICU") ~ NA,
     T ~ sp.cov)) %>% 
   dplyr::filter(!is.na(sp.cov)) %>% 
   # Now split species from cover into separate columns
@@ -151,8 +146,10 @@ sort(setdiff(x = unique(trx23_v03$species.code), y = unique(spp_v02$key_value)))
 # Do any needed tidying here
 trx23_v04 <- trx23_v03 %>% 
   dplyr::mutate(species.code = dplyr::case_when(
-    species.code == "BROMMADR" ~ "BROMMAMA", # codes splits two subsp of 'Bromus madritensis'
-    species.code == "GALIAPER" ~ "GALIAPAR", # pretty confident this is a typo for 'Galium aparine'
+    species.code == "BEOMHORD" ~ "BROMHORD", # Seems like a typo of 'Bromus hordeaceus'
+    species.code == "BROMMADR" ~ "BROMMAMA", # "codes" splits two subsp of 'Bromus madritensis'
+    species.code == "CRASCONN" ~ "CRASSCONN", # Simple typo
+    species.code == "TRIFSPP" ~ "TRIFSPEC", # Likely also typo
     T ~ species.code))
 
 # Re-check species names
@@ -183,6 +180,6 @@ dplyr::glimpse(trx23_v99)
 
 # Export locally
 write.csv(x = trx23_v99, na = '', row.names = F,
-  file = file.path("data", "level-1", "trex2022_veg-surveys.csv"))
+  file = file.path("data", "level-1", "trex2023_veg-surveys.csv"))
 
 # End ----
