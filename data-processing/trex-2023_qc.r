@@ -118,7 +118,7 @@ dplyr::glimpse(spp_v01)
 sort(unique(trx23_v03$species.code))
 
 # Any not found in the 'codes' file?
-sort(setdiff(x = unique(trx23_v03$species.code), y = unique(spp_v01$key_value)))
+sort(setdiff(x = unique(trx23_v03$species.code), y = unique(spp_v01$species.code)))
 
 # Do any needed tidying here
 trx23_v04 <- trx23_v03 %>% 
@@ -126,11 +126,15 @@ trx23_v04 <- trx23_v03 %>%
     species.code == "BEOMHORD" ~ "BROMHORD", # Seems like a typo of 'Bromus hordeaceus'
     species.code == "BROMMADR" ~ "BROMMAMA", # "codes" splits two subsp of 'Bromus madritensis'
     species.code == "CRASCONN" ~ "CRASSCONN", # Simple typo
+    # species.code == "EMMEPEND" ~ "",
+    # species.code == "LOGFCALI" ~ "",
+    # species.code == "THYSCURV" ~ "",
     species.code == "TRIFSPP" ~ "TRIFSPEC", # Likely also typo
+    # species.code == "UNKNASTE" ~ "",
     T ~ species.code))
 
 # Re-check species names
-sort(setdiff(x = unique(trx23_v04$species.code), y = unique(spp_v01$key_value)))
+sort(setdiff(x = unique(trx23_v04$species.code), y = unique(spp_v01$species.code)))
 
 ## ----------------------------- ##
 # Integrate Plant Metadata ----

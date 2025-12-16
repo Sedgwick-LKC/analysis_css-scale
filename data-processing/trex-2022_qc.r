@@ -123,17 +123,28 @@ dplyr::glimpse(spp_v01)
 sort(unique(trx22_v03$species.code))
 
 # Any not found in the 'codes' file?
-sort(setdiff(x = unique(trx22_v03$species.code), y = unique(spp_v01$key_value)))
+sort(setdiff(x = unique(trx22_v03$species.code), y = unique(spp_v01$species.code)))
 
 # Do any needed tidying here
 trx22_v04 <- trx22_v03 %>% 
   dplyr::mutate(species.code = dplyr::case_when(
     species.code == "BROMMADR" ~ "BROMMAMA", # codes splits two subsp of 'Bromus madritensis'
+    # species.code == "CALYPURP" ~ "",
+    # species.code == "CAMA" ~ "",
+    # species.code == "CAMAMICR" ~ "",
+    # species.code == "CAMASONIOPSIS" ~ "",
+    # species.code == "CAMIMICR" ~ "",
+    # species.code == "DICTCAPI" ~ "",
+    # species.code == "EUCRCHRY" ~ "",
     species.code == "GALIAPER" ~ "GALIAPAR", # pretty confident this is a typo for 'Galium aparine'
+    # species.code == "LUPITRUN" ~ "",
+    # species.code == "PHACCICU" ~ "",
+    # species.code == "THYSCURV" ~ "",
+    # species.code == "UNKNASTE" ~ "",
     T ~ species.code))
 
 # Re-check species names
-sort(setdiff(x = unique(trx22_v04$species.code), y = unique(spp_v01$key_value)))
+sort(setdiff(x = unique(trx22_v04$species.code), y = unique(spp_v01$species.code)))
 
 ## ----------------------------- ##
 # Integrate Plant Metadata ----
