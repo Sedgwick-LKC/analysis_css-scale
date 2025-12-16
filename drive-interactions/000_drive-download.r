@@ -24,7 +24,7 @@ link_lvl0 <- googledrive::as_id("https://drive.google.com/drive/folders/1EuicPFF
 # Check what's in that
 (drive_lvl0 <- googledrive::drive_ls(path = link_lvl0) %>% 
   ## And pare down to only the desired files
-  dplyr::filter(stringr::str_detect(string = name, pattern = "long|addspp") != T) %>% 
+  dplyr::filter(stringr::str_detect(string = name, pattern = "long|addspp|add_spp") != T) %>% 
   dplyr::filter(stringr::str_detect(string = tolower(name), pattern = "trex|midland")))
 
 # Download all the contents of that
